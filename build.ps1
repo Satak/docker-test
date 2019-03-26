@@ -3,7 +3,8 @@ param(
     [switch]$Run,
     [string]$Version = 'latest',
     [string]$AppName = 'samiapp',
-    [string]$DockerHubUser = 'satak'
+    [string]$DockerHubUser = 'satak',
+    [string]$Folder = '.'
 )
 
 $tag = "$($DockerHubUser)/$($AppName):$($Version)"
@@ -13,7 +14,7 @@ $externalPort = 80
 docker kill $AppName
 docker rm $AppName
 docker rmi $AppName
-docker build -t $tag .
+docker build -t $tag $Folder
 
 if($Push) {
     docker push $tag

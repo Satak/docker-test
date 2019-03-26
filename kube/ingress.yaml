@@ -12,3 +12,7 @@ spec:
         backend:
           serviceName: samiapp
           servicePort: 80
+      - path: /samiapp2/?(.*)
+        backend:
+          serviceName: samiapp2
+          servicePort: 80
