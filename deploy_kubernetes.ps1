@@ -1,4 +1,5 @@
-kubectl apply -f ./samiapp/kube/deployment.yaml
-kubectl apply -f ./samiapp/kube/service.yaml
-kubectl apply -f ./samiapp2/kube/deployment.yaml
-kubectl apply -f ./samiapp2/kube/service.yaml
+$files = Get-ChildItem -Recurse -Filter *.yaml | Where-Object {$_.Directory.Name -eq 'kube'}
+
+foreach($file in $files) {
+    kubectl apply -f $file.FullName
+}
