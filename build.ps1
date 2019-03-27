@@ -1,6 +1,7 @@
 param(
     [switch]$Push,
     [switch]$Run,
+    [switch]$All,
     [string]$Version = 'latest',
     [string]$AppName = 'samiapp',
     [string]$DockerHubUser = 'satak',
@@ -8,8 +9,6 @@ param(
 )
 
 $tag = "$($DockerHubUser)/$($AppName):$($Version)"
-$internalPort = 8080
-$externalPort = 80
 
 docker kill $AppName
 docker rm $AppName
@@ -21,5 +20,7 @@ if($Push) {
 }
 
 if($Run) {
+    $internalPort = 8080
+    $externalPort = 80
     docker run -it -d --name $appName -p "$($externalPort):$($internalPort)" $tag
 }
