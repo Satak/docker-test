@@ -1,5 +1,6 @@
 from flask import Flask, jsonify, render_template
 from os import getenv
+import requests
 
 app = Flask(__name__)
 
@@ -14,6 +15,17 @@ CREDS = {
 @app.route('/')
 def root():
     return jsonify({'message': f'Root of {NAME}'})
+
+
+@app.route('/api/data')
+def api_data():
+    try:
+        data = requests.get('http://samiapp3/').json()
+        status_code = 200
+    except Exception as err:
+        data = {'error': str(err)}
+        status_code = 500
+    return jsonify(data), status_code
 
 
 @app.route('/api/version')
