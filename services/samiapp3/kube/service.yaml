@@ -1,10 +1,10 @@
 kind: Service
 apiVersion: v1
 metadata:
-  name: samiapp3
+  name: {{appName}}
 spec:
   selector:
-    app: samiapp3
+    app: {{appName}}
   ports:
   - name: http
     protocol: TCP

@@ -1,22 +1,22 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: samiapp2
+  name: {{appName}}
   labels:
-    app: samiapp2
+    app: {{appName}}
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: samiapp2
+      app: {{appName}}
   template:
     metadata:
       labels:
-        app: samiapp2
+        app: {{appName}}
     spec:
       containers:
-      - name: samiapp2
-        image: satak/samiapp2:latest
+      - name: {{appName}}
+        image: satak/{{appName}}:latest
         ports:
         - containerPort: 8080
         env:
