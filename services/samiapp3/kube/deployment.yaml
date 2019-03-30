@@ -1,21 +1,21 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{appName}}
+  name: $appName
   labels:
-    app: {{appName}}
+    app: $appName
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: {{appName}}
+      app: $appName
   template:
     metadata:
       labels:
-        app: {{appName}}
+        app: $appName
     spec:
       containers:
-      - name: {{appName}}
-        image: satak/{{appName}}:latest
+      - name: $appName
+        image: $(repository)/$($appName):$version
         ports:
         - containerPort: 8080
