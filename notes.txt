@@ -1,2 +1,7 @@
 cat ./kube/configMap.yaml | sed "s/{{myValue}}/teest/g" | kubectl apply -f -
 (Get-Content ./kube/configMap.yaml -Raw) -replace '{{myValue}}', $value | kubectl apply -f -
+
+# file = 'My name is $name'
+$name = 'Bob'
+$Template = Get-Content $File
+$ExecutionContext.InvokeCommand.ExpandString($Template)

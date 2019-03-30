@@ -4,7 +4,7 @@ from os import getenv
 app = Flask(__name__)
 
 NAME = 'Sami App 1'
-VERSION = 1
+VERSION = 2
 
 
 @app.route('/')
