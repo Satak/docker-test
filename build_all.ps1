@@ -29,11 +29,11 @@ foreach($folder in $srvFolders) {
 
     $valuesPath = Join-Path -Path $folder.FullName -ChildPath '/kube/values.yaml'
     if((Test-Path $valuesPath) -eq $false) {
+        Write-Warning "values.yaml file not found under kube folder, skipping folder $($folder.name)"
         continue
     }
+    # setting local variables
     $variableValues = Get-Content -Path $valuesPath -Raw | ConvertFrom-Yaml
-
-    # list of hashtables
     $variableValues.getEnumerator() | ForEach-Object {Set-Variable -Name $_.Name -Value $_.Value}
 
     # docker, note that $repository, $appName and $version variables must be set before
@@ -58,18 +58,10 @@ foreach($folder in $srvFolders) {
         Write-Output "Applying Kubernetes for file $($file.name)"
         $template = Get-Content -Path $file.FullName -Raw
         $ExecutionContext.InvokeCommand.ExpandString($template) | kubectl apply -f -
-        <#
-        $kubernetesConfig = $template | ConvertFrom-Yaml
-        if($kubernetesConfig['kind'] -eq 'Deployment') {
-            kubectl scale deployment $appName --replicas=0
-            kubectl scale deployment $appName --replicas=1
-        }
-        #>
     }
 
     # clear variables
     $variableValues.getEnumerator() | ForEach-Object {Remove-Variable -Name $_.Name}
-
 }
 
 ConvertTo-Yaml $globalValues | Set-Content $globalValuesPath
