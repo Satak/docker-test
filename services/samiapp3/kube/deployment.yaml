@@ -16,6 +16,6 @@ spec:
     spec:
       containers:
       - name: $appName
-        image: $(repository)/$($appName):$version
+        image: $($repository)/$($appName):$($version)
         ports:
         - containerPort: 8080

@@ -16,6 +16,6 @@ spec:
     spec:
       containers:
       - name: $appName
-        image: satak/$($appName):latest
+        image: $($repository)/$($appName):$($version)
         ports:
         - containerPort: 8080
