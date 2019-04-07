@@ -3,7 +3,7 @@ param(
 )
 Import-Module powershell-yaml
 
-$globalValues = Get-Content -Path './kube/values.yaml' | ConvertFrom-Yaml
+$globalValues = Get-Content -Path './kube/values.yaml' -Raw | ConvertFrom-Yaml
 $srvFolders = Get-ChildItem -Path $RootFolder -Directory
 
 foreach($folder in $srvFolders) {
@@ -18,8 +18,7 @@ foreach($folder in $srvFolders) {
         Remove-Variable repository
     }
     # set/reset global values for each folder iteration
-    # list of hashtables
-    $globalValues | ForEach-Object {$_.getEnumerator() | ForEach-Object {Set-Variable -Name $_.Name -Value $_.Value}}
+    $globalValues.getEnumerator() | ForEach-Object {Set-Variable -Name $_.Name -Value $_.Value}
     
     $dockerfilePath = Join-Path -Path $folder.FullName -ChildPath 'Dockerfile'
     $dockerFileFound = Test-Path -Path $dockerfilePath
@@ -28,9 +27,11 @@ foreach($folder in $srvFolders) {
     if((Test-Path $valuesPath) -eq $false) {
         continue
     }
-    $variableValues = Get-Content -Path $valuesPath | ConvertFrom-Yaml
+    $variableValues = Get-Content -Path $valuesPath -Raw | ConvertFrom-Yaml
+
+    $variableValues.GetType()
     # list of hashtables
-    $variableValues | ForEach-Object {$_.getEnumerator() | ForEach-Object {Set-Variable -Name $_.Name -Value $_.Value}}
+    $variableValues.getEnumerator() | ForEach-Object {Set-Variable -Name $_.Name -Value $_.Value}
 
     # docker, note that $repository, $appName and $version variables must be set before
     if($appName -and $version -and $repository -and $dockerFileFound) {
@@ -57,6 +58,6 @@ foreach($folder in $srvFolders) {
     }
 
     # clear variables
-    $variableValues | ForEach-Object {$_.getEnumerator() | ForEach-Object {Remove-Variable -Name $_.Name}}
+    $variableValues.getEnumerator() | ForEach-Object {Remove-Variable -Name $_.Name}
 
 }
