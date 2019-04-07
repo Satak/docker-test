@@ -3,19 +3,23 @@ param(
 )
 Import-Module powershell-yaml
 
-$globalValues = Get-Content -Path './kube/values.yaml' -Raw | ConvertFrom-Yaml
+$globalValuesPath = './kube/values.yaml'
+$globalValues = Get-Content -Path $globalValuesPath -Raw | ConvertFrom-Yaml
+$currentAppVersion = $globalValues['appVersion']
+$newVersion = [int]($currentAppVersion.Split('v')[1]) += 1
+$globalValues['appVersion'] = "v$newVersion"
 $srvFolders = Get-ChildItem -Path $RootFolder -Directory
 
 foreach($folder in $srvFolders) {
     Write-Output $folder.name
     if($appName) {
-        Remove-Variable appName
+        Remove-Variable appName -ErrorAction SilentlyContinue
     }
     if($version) {
-        Remove-Variable version
+        Remove-Variable version -ErrorAction SilentlyContinue
     }
     if($repository) {
-        Remove-Variable repository
+        Remove-Variable repository -ErrorAction SilentlyContinue
     }
     # set/reset global values for each folder iteration
     $globalValues.getEnumerator() | ForEach-Object {Set-Variable -Name $_.Name -Value $_.Value}
@@ -29,7 +33,6 @@ foreach($folder in $srvFolders) {
     }
     $variableValues = Get-Content -Path $valuesPath -Raw | ConvertFrom-Yaml
 
-    $variableValues.GetType()
     # list of hashtables
     $variableValues.getEnumerator() | ForEach-Object {Set-Variable -Name $_.Name -Value $_.Value}
 
@@ -37,9 +40,9 @@ foreach($folder in $srvFolders) {
     if($appName -and $version -and $repository -and $dockerFileFound) {
         Write-Output "Start building Docker image"
         $tag = "$($repository)/$($appName):$($version)"
-        docker kill $appName
-        docker rm $appName
-        docker rmi $appName
+        # docker kill $appName
+        # docker rm $appName
+        # docker rmi $tag
         docker build -t $tag $Folder
         docker push $tag
     } elseif (!$dockerFileFound) {
@@ -55,9 +58,18 @@ foreach($folder in $srvFolders) {
         Write-Output "Applying Kubernetes for file $($file.name)"
         $template = Get-Content -Path $file.FullName -Raw
         $ExecutionContext.InvokeCommand.ExpandString($template) | kubectl apply -f -
+        <#
+        $kubernetesConfig = $template | ConvertFrom-Yaml
+        if($kubernetesConfig['kind'] -eq 'Deployment') {
+            kubectl scale deployment $appName --replicas=0
+            kubectl scale deployment $appName --replicas=1
+        }
+        #>
     }
 
     # clear variables
     $variableValues.getEnumerator() | ForEach-Object {Remove-Variable -Name $_.Name}
 
 }
+
+ConvertTo-Yaml $globalValues | Set-Content $globalValuesPath
